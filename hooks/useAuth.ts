@@ -1,28 +1,50 @@
 /**
- * useAuth Hook - Hook personalizado para gestionar autenticación
+ * useAuth Hook - Sistema de autenticación centralizado
  * 
- * PROPÓSITO:
- * Centralizar toda la lógica de autenticación en un solo lugar.
- * Cualquier componente puede usar este hook para:
- * - Saber si hay un usuario logueado
- * - Conocer el rol del usuario (user/admin)
- * - Iniciar sesión, registrarse o cerrar sesión
+ * Hook personalizado que gestiona toda la autenticación y autorización
+ * de la aplicación utilizando Supabase Auth.
  * 
- * CÓMO FUNCIONA:
- * 1. Al cargar, verifica si hay una sesión activa en Supabase
- * 2. Escucha cambios de autenticación (login/logout)
- * 3. Cuando hay un usuario, busca su rol en la tabla 'profiles'
- * 4. Expone funciones para login, registro y logout
+ * 🔐 FUNCIONALIDADES:
+ * - Persistencia de sesión (mantiene login entre reinicios)
+ * - Sistema de roles (user/admin/worker)
+ * - Listeners reactivos a cambios de autenticación
+ * - Validación automática de sesiones expiradas
  * 
- * RETORNA:
- * - session: Sesión completa de Supabase (incluye tokens)
- * - user: Objeto User con id, email, etc.
- * - role: 'user' | 'admin' | 'worker' | null
- * - loading: true mientras carga la sesión inicial
- * - error: Mensaje de error si algo falla
- * - signInWithEmail(email, password): Función para iniciar sesión
- * - signUpWithEmail(email, password): Función para registrarse
- * - signOut(): Función para cerrar sesión
+ * 📊 FLUJO DE AUTENTICACIÓN:
+ * 1. App inicia → Verifica sesión guardada en AsyncStorage
+ * 2. Usuario existe → Carga rol desde tabla 'profiles'
+ * 3. Escucha cambios → Actualiza estado automáticamente
+ * 4. Cambio de rol → Re-renderiza componentes que usen el hook
+ * 
+ * 🎯 CASOS DE USO:
+ * - Proteger rutas según rol
+ * - Mostrar/ocultar contenido según autenticación
+ * - Personalizar UI según tipo de usuario
+ * - Gestionar formularios de login/registro
+ * 
+ * @hook
+ * @returns {Object} Estado y funciones de autenticación
+ * @property {Session | null} session - Sesión activa de Supabase
+ * @property {User | null} user - Usuario autenticado
+ * @property {UserRole | null} role - Rol del usuario (user/admin/worker)
+ * @property {boolean} loading - Estado de carga inicial
+ * @property {string | null} error - Mensaje de error si existe
+ * @property {Function} signInWithEmail - Iniciar sesión con email/password
+ * @property {Function} signUpWithEmail - Registrar nuevo usuario
+ * @property {Function} signOut - Cerrar sesión
+ * 
+ * @example
+ * ```tsx
+ * function ProtectedScreen() {
+ *   const { user, role, loading, signOut } = useAuth();
+ *   
+ *   if (loading) return <LoadingSpinner />;
+ *   if (!user) return <LoginScreen />;
+ *   if (role !== 'admin') return <UnauthorizedScreen />;
+ *   
+ *   return <AdminDashboard onLogout={signOut} />;
+ * }
+ * ```
  */
 
 import { supabase } from '@/lib/supabase';

@@ -1,20 +1,40 @@
 /**
- * Supabase Client - Configuración del cliente de Supabase
+ * Supabase Client - Cliente centralizado de Backend as a Service
  * 
- * ¿QUÉ ES SUPABASE?
- * Backend as a Service que provee PostgreSQL + Auth + Storage + Realtime.
+ * 🚀 ¿QUÉ ES SUPABASE?
+ * Supabase es una alternativa open source a Firebase que provee:
+ * - PostgreSQL: Base de datos relacional completa
+ * - Auth: Autenticación con JWT y múltiples providers
+ * - Storage: Almacenamiento de archivos con CDN
+ * - Realtime: WebSockets para actualizaciones en vivo
+ * - Edge Functions: Serverless functions
+ * - Row Level Security (RLS): Seguridad a nivel de fila
  * 
- * EN ESTE PROYECTO:
- * - PostgreSQL: Base de datos relacional
- * - Auth: Sistema de autenticación con roles
- * - RLS: Row Level Security para seguridad granular
+ * 🔐 SEGURIDAD:
+ * - ANON_KEY: Clave pública (segura de exponer en cliente)
+ * - RLS: Políticas de seguridad en PostgreSQL protegen datos
+ * - JWT: Tokens seguros para autenticación
  * 
- * CONFIGURACIÓN:
- * - AsyncStorage: Persiste sesión en el dispositivo
- * - autoRefreshToken: Renueva token automáticamente
- * - persistSession: Mantiene sesión entre reinicios
+ * ⚙️ CONFIGURACIÓN ACTUAL:
+ * - AsyncStorage: Persiste sesión en almacenamiento local del dispositivo
+ * - autoRefreshToken: Renueva automáticamente tokens antes de expirar
+ * - persistSession: Mantiene sesión activa entre reinicios de app
+ * - detectSessionInUrl: Deshabilitado (solo necesario en web)
  * 
- * ⚠️ PRODUCCIÓN: Mover a variables de entorno (EXPO_PUBLIC_SUPABASE_URL, etc.)
+ * 📊 USO EN EL PROYECTO:
+ * - Autenticación de usuarios (login/registro)
+ * - CRUD de productos, órdenes, perfiles
+ * - Realtime tracking de ubicación de drivers
+ * - Storage de fotos de entrega
+ * - Notificaciones push (tokens en BD)
+ * 
+ * ⚠️ MEJORES PRÁCTICAS:
+ * - En producción: Usar variables de entorno (EXPO_PUBLIC_SUPABASE_URL)
+ * - No exponer SERVICE_ROLE_KEY en código cliente
+ * - Implementar RLS en todas las tablas sensibles
+ * 
+ * @module supabase
+ * @see https://supabase.com/docs
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';

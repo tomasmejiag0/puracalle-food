@@ -1,30 +1,59 @@
 /**
- * CartContext - Contexto global del carrito de compras
+ * CartContext - Estado global del carrito de compras
  * 
- * ¿QUÉ ES REACT CONTEXT?
- * Es una forma de compartir datos entre componentes sin pasar props manualmente
- * por cada nivel (evita "prop drilling").
+ * Implementación del patrón Context API de React para gestionar
+ * el carrito de compras de manera centralizada.
  * 
- * PROPÓSITO DE ESTE CONTEXT:
- * Gestionar el estado del carrito de compras de forma global:
- * - Qué productos están en el carrito
- * - Cantidad de cada producto
- * - Total a pagar
- * - Funciones para agregar/eliminar/limpiar
+ * 🛒 ¿QUÉ ES REACT CONTEXT?
+ * Context API permite compartir datos entre componentes sin necesidad
+ * de pasar props manualmente a través de cada nivel del árbol de componentes.
+ * Soluciona el problema de "prop drilling".
  * 
- * CÓMO SE USA:
- * 1. Wrappear la app con <CartProvider> (en app/_layout.tsx)
- * 2. En cualquier componente: const { items, addItem, ... } = useCart()
- * 3. No necesitas pasar props, el estado es global
+ * 📦 ESTADO GESTIONADO:
+ * - Lista de productos en el carrito con cantidades
+ * - Cálculo automático del total en centavos
+ * - Operaciones CRUD sobre items del carrito
  * 
- * BENEFICIOS:
- * - Agregar al carrito desde cualquier pantalla
- * - Ver items del carrito en cualquier lugar
- * - Estado persiste mientras la app está abierta
+ * 🔄 OPERACIONES DISPONIBLES:
+ * - addItem: Agregar producto (incrementa si ya existe)
+ * - decrementItem: Restar cantidad (elimina si llega a 0)
+ * - removeItem: Eliminar producto completamente
+ * - clear: Vaciar todo el carrito
+ * 
+ * 💡 ARQUITECTURA:
+ * 1. CartProvider: Componente que provee el contexto (en _layout.tsx)
+ * 2. useState: Mantiene el estado de items
+ * 3. useMemo: Optimiza cálculo del total
+ * 4. useCart hook: Acceso fácil desde cualquier componente
+ * 
+ * ⚡ OPTIMIZACIONES:
+ * - useMemo para evitar recalcular total en cada render
+ * - Value context memoizado para prevenir re-renders innecesarios
+ * 
+ * @module CartContext
+ * @example
+ * ```tsx
+ * // En _layout.tsx - Configuración inicial
+ * <CartProvider>
+ *   <App />
+ * </CartProvider>
+ * 
+ * // En cualquier componente - Consumir el contexto
+ * function ProductCard({ product }) {
+ *   const { addItem, items } = useCart();
+ *   const quantity = items.find(i => i.product.id === product.id)?.quantity || 0;
+ *   
+ *   return (
+ *     <Button onPress={() => addItem(product)}>
+ *       Agregar al carrito ({quantity})
+ *     </Button>
+ *   );
+ * }
+ * ```
  */
 
-import React, { createContext, useContext, useMemo, useState } from 'react';
 import type { Product } from '@/services/products';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 // Tipo: Un item del carrito (producto + cantidad)
 export type CartItem = {
@@ -71,13 +100,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => {
       const idx = prev.findIndex((i) => i.product.id === productId);
       if (idx < 0) return prev; // No existe, no hacer nada
-      
+
       const currentQuantity = prev[idx].quantity;
       if (currentQuantity <= 1) {
         // Si cantidad es 1, eliminar el producto del carrito
         return prev.filter((i) => i.product.id !== productId);
       }
-      
+
       // Si cantidad > 1, decrementar
       const copy = [...prev];
       copy[idx] = { ...copy[idx], quantity: copy[idx].quantity - 1 };

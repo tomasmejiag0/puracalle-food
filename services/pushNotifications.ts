@@ -1,10 +1,42 @@
 /**
  * SERVICE: Push Notifications
  * 
- * Maneja el sistema de notificaciones push usando expo-notifications
- * - Registro de tokens
- * - Envío de notificaciones
- * - Listeners de notificaciones recibidas
+ * Sistema completo de notificaciones push para la aplicación
+ * utilizando Expo Push Notification Service.
+ * 
+ * 🔔 ARQUITECTURA DEL SISTEMA:
+ * 1. Cliente (App) registra Expo Push Token
+ * 2. Token se guarda en Supabase (tabla profiles)
+ * 3. Servidor/Cliente envía notificación a Expo API
+ * 4. Expo enruta a FCM (Android) o APNs (iOS)
+ * 5. Sistema operativo muestra la notificación
+ * 
+ * 📱 FLUJO DE REGISTRO:
+ * - Solicitar permisos al usuario
+ * - Generar Expo Push Token único
+ * - Almacenar token en base de datos
+ * - Actualizar token si cambia el dispositivo
+ * 
+ * 🚀 FLUJO DE ENVÍO:
+ * - Buscar token del destinatario en BD
+ * - Construir payload de notificación
+ * - POST a https://exp.host/--/api/v2/push/send
+ * - Expo se encarga del resto (FCM/APNs)
+ * 
+ * 💡 CARACTERÍSTICAS:
+ * - Soporte para iOS y Android
+ * - Notificaciones con sonido y badge
+ * - Data payload personalizado
+ * - Listeners para foreground/background
+ * - Configuración de comportamiento en foreground
+ * 
+ * ⚠️ LIMITACIONES:
+ * - Solo funciona en dispositivos físicos
+ * - Requiere configuración en app.json (projectId)
+ * - Limitaciones de rate en plan gratuito de Expo
+ * 
+ * @module pushNotifications
+ * @see https://docs.expo.dev/push-notifications/overview/
  */
 
 import { supabase } from '@/lib/supabase';
