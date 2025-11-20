@@ -1,11 +1,58 @@
 /**
- * PANTALLA: DETALLE DE ORDEN PARA REPARTIDOR
+ * PANTALLA: Detalle de Orden para Repartidor
  * 
- * Muestra información completa de una orden asignada:
- * - Datos del cliente
- * - Dirección de entrega con mapa (LiveDeliveryMap)
- * - Items de la orden
- * - Botones de acción (Iniciar entrega, Completar entrega con foto)
+ * Pantalla principal del flujo de entrega que muestra información
+ * completa de una orden asignada al driver.
+ * 
+ * 📦 INFORMACIÓN MOSTRADA:
+ * - Datos del cliente (nombre, email, teléfono)
+ * - Dirección de entrega con mapa interactivo
+ * - Total de la orden en formato moneda
+ * - Estado actual de la entrega
+ * - Instrucciones especiales de entrega
+ * 
+ * 🗺️ MAPA EN TIEMPO REAL:
+ * - Componente RealTimeDeliveryMap integrado
+ * - Ubicación del cliente (marcador verde 🏠)
+ * - Ubicación del driver (marcador naranja 🏍️)
+ * - Ubicación del restaurante (marcador azul 🏪)
+ * - Ruta optimizada calculada con OSRM
+ * - Actualización automática vía Supabase Realtime
+ * 
+ * 🔄 FLUJO COMPLETO:
+ * 1. Driver acepta orden en deliveries.tsx
+ * 2. Se asigna la orden (assigned_driver_id)
+ * 3. Estado cambia a 'assigned_to_driver'
+ * 4. Inicia rastreo GPS automático (locationTracker.ts)
+ * 5. Driver puede:
+ *    - Ver detalles completos
+ *    - Iniciar entrega (cambia a 'out_for_delivery')
+ *    - Llamar al cliente
+ *    - Abrir Google Maps para navegación
+ *    - Liberar orden si no puede entregarla
+ * 6. Al estar en camino, botón "Completar Entrega" activo
+ * 7. Navega a /driver/complete/[id] para foto y código
+ * 
+ * 🔒 BLOQUEO DE NAVEGACIÓN:
+ * - BackHandler previene salida accidental
+ * - Usuario debe liberar orden o completarla
+ * - Evita pérdida de órdenes activas
+ * 
+ * 📡 SUBSCRIPCIONES REALTIME:
+ * - Escucha cambios en la orden (cancelaciones)
+ * - Escucha ubicación propia del driver
+ * - Auto-actualiza mapa sin refresh manual
+ * 
+ * ⚡ OPTIMIZACIONES:
+ * - Carga inicial + recarga con delay (fix race conditions)
+ * - Auto-corrección de estados inconsistentes
+ * - Cleanup de subscripciones en unmount
+ * - Stop tracking automático al salir
+ * 
+ * @screen
+ * @route /driver/order/[id]
+ * @requires auth - Solo accesible por workers
+ * @requires permission - ACCESS_FINE_LOCATION
  */
 
 import RealTimeDeliveryMap from '@/components/RealTimeDeliveryMap';
@@ -62,7 +109,7 @@ export default function DriverOrderDetail() {
     useEffect(() => {
         // Load order immediately, then reload after a delay to catch updates
         loadOrder();
-        
+
         // Reload after delay to ensure order is updated in database after acceptance
         const timer = setTimeout(() => {
             loadOrder();
@@ -103,7 +150,7 @@ export default function DriverOrderDetail() {
     // Block navigation when order is accepted (assigned_to_driver or out_for_delivery)
     useEffect(() => {
         const isOrderActive = order?.status_detailed === 'assigned_to_driver' || order?.status_detailed === 'out_for_delivery';
-        
+
         if (isOrderActive) {
             const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
                 Alert.alert(
@@ -192,21 +239,21 @@ export default function DriverOrderDetail() {
                 .single();
 
             if (error) throw error;
-            
+
             let orderData = data;
-            
+
             // Fix: If order is assigned to this driver but status is still ready_for_pickup, update it
             if (user && orderData.assigned_driver_id === user.id && orderData.status_detailed === 'ready_for_pickup') {
                 const { data: updateResult, error: fixError } = await supabase
                     .from('orders')
-                    .update({ 
+                    .update({
                         status_detailed: 'assigned_to_driver',
                         driver_accepted_at: orderData.driver_accepted_at || new Date().toISOString()
                     })
                     .eq('id', id)
                     .select('status_detailed')
                     .single();
-                
+
                 if (!fixError && updateResult) {
                     const { data: fixedData, error: reloadError } = await supabase
                         .from('orders')
@@ -217,7 +264,7 @@ export default function DriverOrderDetail() {
                         `)
                         .eq('id', id)
                         .single();
-                    
+
                     if (!reloadError && fixedData) {
                         orderData = fixedData;
                     }
@@ -226,7 +273,7 @@ export default function DriverOrderDetail() {
                     Alert.alert('Error', `No se pudo actualizar el estado: ${fixError.message}`);
                 }
             }
-            
+
             setOrder(orderData);
 
             // Load initial driver location if available

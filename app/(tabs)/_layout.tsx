@@ -1,9 +1,48 @@
 /**
- * TAB LAYOUT - Configuración del Tab Navigator
+ * TAB LAYOUT - Sistema de navegación principal
  * 
- * Sistema de navegación con tabs condicionales según el rol del usuario:
- * - WORKERS: Solo ven Entregas y Perfil
- * - USUARIOS/ADMINS: Home, Menú, Pedidos, Promos y Perfil
+ * Implementa un Tab Navigator con pestañas condicionales
+ * según el rol del usuario autenticado.
+ * 
+ * 🎯 ARQUITECTURA:
+ * - React Navigation Bottom Tabs
+ * - Renderizado condicional basado en roles
+ * - Safe Area Insets para dispositivos con notch
+ * - Iconos con Lucide React Native
+ * 
+ * 👥 ROLES Y VISIBILIDAD:
+ * 
+ * USUARIO NORMAL (role: 'user'):
+ * ✅ Home - Página principal y destacados
+ * ✅ Menú - Catálogo de productos
+ * ✅ Pedidos - Historial de órdenes
+ * ✅ Promos - Promociones activas
+ * ✅ Nosotros - Información de la empresa
+ * ✅ Perfil - Datos personales
+ * 
+ * REPARTIDOR (role: 'worker'):
+ * ✅ Entregas - Dashboard de órdenes disponibles
+ * ✅ Perfil - Datos personales
+ * ❌ Resto de tabs ocultos
+ * 
+ * ADMINISTRADOR (role: 'admin'):
+ * ✅ Todos los tabs de usuario normal
+ * ✅ Acceso adicional a panel admin (no en tabs)
+ * 
+ * 💡 TÉCNICA DE OCULTACIÓN:
+ * - href: null → Tab NO se renderiza
+ * - href: undefined → Tab SÍ se renderiza
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * // En cualquier pantalla, navegar a un tab:
+ * router.push('/(tabs)/menu');
+ * 
+ * // Verificar tab activo:
+ * const route = useRoute();
+ * const isMenuActive = route.name === 'menu';
+ * ```
  */
 
 import { useAuth } from '@/hooks/useAuth';
