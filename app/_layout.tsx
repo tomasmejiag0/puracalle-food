@@ -1,16 +1,50 @@
 /**
  * ROOT LAYOUT - Layout raíz de la aplicación
  * 
- * Este es el componente más externo de la app. Aquí se configuran:
- * 1. Providers globales (Context API)
- * 2. Navegación principal (Stack Navigator)
- * 3. Safe Area para dispositivos con notch
- * 4. Temas claro/oscuro
+ * Componente más externo que configura toda la arquitectura base
+ * de la aplicación React Native con Expo Router.
  * 
- * ORDEN DE PROVIDERS (de afuera hacia adentro):
- * - SafeAreaProvider: Maneja áreas seguras (notch, status bar)
- * - ThemeProvider: Temas de React Navigation
- * - CartProvider: Estado global del carrito de compras
+ * 🏗️ ARQUITECTURA DE PROVIDERS (de afuera hacia adentro):
+ * 
+ * 1. SafeAreaProvider (react-native-safe-area-context)
+ *    - Maneja áreas seguras del dispositivo (notch, status bar, home indicator)
+ *    - Provee insets para todos los componentes hijos
+ *    - Esencial para diseño adaptativo en diferentes dispositivos
+ * 
+ * 2. ThemeProvider (React Navigation)
+ *    - Gestiona tema claro/oscuro
+ *    - Detecta preferencia del sistema operativo
+ *    - Aplica colores apropiados a navegación y componentes
+ * 
+ * 3. CartProvider (Context API personalizado)
+ *    - Estado global del carrito de compras
+ *    - Accesible desde cualquier pantalla sin prop drilling
+ *    - Persiste durante la sesión de la app
+ * 
+ * 4. Stack Navigator (Expo Router)
+ *    - Sistema de navegación principal
+ *    - File-based routing (estructura de carpetas = rutas)
+ *    - Transiciones nativas entre pantallas
+ * 
+ * 📱 CONFIGURACIÓN DE UI:
+ * - StatusBar: style="dark" (iconos oscuros sobre fondo naranja)
+ * - Background color: #f97316 (naranja del sistema)
+ * - Global CSS: Importado de global.css (TailwindCSS)
+ * 
+ * 🎯 EXPO ROUTER CONFIG:
+ * - Anchor: '(tabs)' - Define punto de entrada principal
+ * - Typed Routes: Habilitado para type-safety
+ * - React Compiler: Experimental optimizations
+ * 
+ * 🔔 INICIALIZACIÓN GLOBAL:
+ * - useNotifications hook: Configura listeners de notificaciones
+ * - SystemUI color: Establece color del status bar
+ * 
+ * 📊 FLUJO DE RENDERIZADO:
+ * App inicia → SafeArea → Theme → Cart → Stack → (tabs) → Pantalla activa
+ * 
+ * @component
+ * @route Raíz de todas las rutas
  */
 
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';

@@ -1,11 +1,61 @@
 /**
- * PANTALLA: COMPLETAR ENTREGA + FOTO DE EVIDENCIA
+ * PANTALLA: Completar Entrega con Evidencia Fotográfica
  * 
- * Permite al driver:
- * - Tomar foto de evidencia de entrega
- * - Confirmar que la orden fue entregada
- * - Actualizar estado a "delivered"
- * - Enviar notificación al cliente
+ * Última etapa del flujo de entrega que requiere foto + código de verificación.
+ * 
+ * 📸 PROCESO DE CAPTURA:
+ * 1. Solicita permisos de cámara (CAMERA)
+ * 2. Muestra preview de cámara nativa (CameraView)
+ * 3. Driver puede alternar entre cámara frontal/trasera
+ * 4. Captura foto con calidad 70% (optimización de peso)
+ * 5. Genera base64 automáticamente para subida
+ * 
+ * 🔢 VERIFICACIÓN DE CÓDIGO:
+ * - Cliente recibe código de 5 dígitos al crear orden
+ * - Driver debe ingresar el código que le da el cliente
+ * - Validación en frontend antes de subir
+ * - Si código incorrecto → no permite completar
+ * - Previene entregas fraudulentas
+ * 
+ * ☁️ FLUJO DE SUBIDA:
+ * 1. Validar código coincide con orden
+ * 2. Convertir base64 a ArrayBuffer (decode)
+ * 3. Upload a Supabase Storage (bucket: delivery-photos)
+ * 4. Crear registro en tabla delivery_photos
+ * 5. Actualizar orden:
+ *    - status: 'completed'
+ *    - status_detailed: 'delivered'
+ *    - delivery_photo_id: [id de la foto]
+ *    - delivered_at: timestamp
+ * 6. Enviar notificación push al cliente
+ * 7. Feedback haptic de éxito
+ * 8. Navegar a dashboard de entregas
+ * 
+ * 🎯 CARACTERÍSTICAS UX:
+ * - Loading spinner durante upload
+ * - Botón deshabilitado sin foto o código
+ * - Preview de foto antes de confirmar
+ * - Opción de retomar foto
+ * - Keyboard handling (dismissKeyboard)
+ * - Feedback visual del código ingresado
+ * 
+ * 🔐 PERMISOS REQUERIDOS:
+ * - Android: CAMERA (automático con expo-camera)
+ * - iOS: NSCameraUsageDescription (configurado en app.json)
+ * - Se solicitan de forma reactiva con useCameraPermissions()
+ * 
+ * ⚡ OPTIMIZACIONES:
+ * - Compresión de imagen (quality: 0.7)
+ * - Base64 solicitado directamente en takePictureAsync
+ * - Fallback a FileSystem.readAsStringAsync si no hay base64
+ * - KeyboardAvoidingView para mejor UX en teclado
+ * 
+ * @screen
+ * @route /driver/complete/[id]
+ * @requires auth - Solo workers
+ * @requires permission - CAMERA
+ * @requires photo - Evidencia obligatoria
+ * @requires code - Código de 5 dígitos
  */
 
 import { useAuth } from '@/hooks/useAuth';
