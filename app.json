@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "Pura Calle Food",
+    "slug": "puracalle-food-nav",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "puracallefoodnavmobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pura Calle necesita acceder a tu ubicación para entregarte tus pedidos en la dirección correcta.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Pura Calle necesita acceder a tu ubicación para entregarte tus pedidos en la dirección correcta."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.anonymous.puracallefoodnav"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "extra": {
+      "SUPABASE_URL": "https://xeptmpgseemvjdhlsfla.supabase.co",
+      "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhlcHRtcGdzZWVtdmpkaGxzZmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NjYyMzksImV4cCI6MjA3NzM0MjIzOX0.kTfzT-0cqIxAnA1rjRW6hu5lCGTonp_-VOE6fkwkEWY"
+    },
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
